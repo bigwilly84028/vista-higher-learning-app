@@ -33,16 +33,26 @@
                   </ion-row>
                 </ion-col>
                 <ion-col size="12" size-sm="4">
-                  <ion-button shape="round" color="danger" @click="recordfn">
+                  <ion-button
+                    shape="round"
+                    :color="isRecording ? 'success' : 'danger'"
+                    @click="recordfn"
+                  >
                     <ion-icon slot="icon-only" name="ellipse"></ion-icon>
                   </ion-button>
                   <ion-row>
-                    <ion-col>Record</ion-col>
+                    <ion-col>{{
+                      isRecording ? "Recording..." : "Record"
+                    }}</ion-col>
                   </ion-row>
                 </ion-col>
                 <ion-col size="12" size-sm="4">
                   <ion-col>
-                    <ion-button shape="round" color="primary" @click="reviewfn">
+                    <ion-button
+                      shape="round"
+                      :color="isReviewing ? 'success' : 'primary'"
+                      @click="reviewfn"
+                    >
                       <ion-icon
                         size="large"
                         slot="icon-only"
@@ -51,20 +61,22 @@
                     </ion-button>
                   </ion-col>
                   <ion-row>
-                    <ion-col>Review your recording</ion-col>
+                    <ion-col>{{
+                      isReviewing ? "Reviewing..." : "Review your recording"
+                    }}</ion-col>
                   </ion-row>
                 </ion-col>
               </ion-row>
               <ion-row class="top-spacer-lg">
                 <ion-col>
-                  <ion-textarea
-                    label-placement="floating"
-                    value="Please submit your answer here..."
+                  <textarea
+                    v-model="text"
+                    rows="3"
+                    cols="20"
+                    placeholder="Please submit your answer here..."
+                    ref="textArea"
                   >
-                    <div slot="label">
-                      Comments <ion-text color="danger">(Required)</ion-text>
-                    </div>
-                  </ion-textarea>
+                  </textarea>
                 </ion-col>
               </ion-row>
               <ion-row class="top-spacer-md">
@@ -74,10 +86,6 @@
               </ion-row>
               <ion-row class="top-spacer-md">
                 <ion-col>
-                  <!-- <ion-radio-group value="strawberries">
-                    <ion-radio value="grapes">Yes</ion-radio><br />
-                    <ion-radio value="strawberries">No</ion-radio>
-                  </ion-radio-group> -->
                   <ion-radio-group
                     value="true"
                     @ionChange="handleFinalAnswerChange($event)"
@@ -96,7 +104,11 @@
               </ion-row>
               <ion-row class="top-spacer-md">
                 <ion-col>
-                  <button class="submit-button" :disabled="submitDisabled">
+                  <button
+                    class="submit-button"
+                    :disabled="submitDisabled"
+                    @click="submitfn"
+                  >
                     Submit
                   </button>
                 </ion-col>
@@ -155,20 +167,36 @@ export default {
     });
   },
   setup() {
-    const isRecording = ref(true);
-    const isReviewing = ref(true);
+    const textArea = ref(null);
+    const isRecording = ref(false);
+    const isReviewing = ref(false);
     const submitDisabled = ref(true);
 
     const stopfn = () => {
-      console.log("Stop CLicked");
+      // should focus text area only if recording is already in progress?
+      // or also if reviewing is in process as well?
+      if (isRecording.value == true || isReviewing.value == true) {
+        if (textArea.value) {
+          textArea.value.focus();
+        }
+      }
+
+      isRecording.value = false;
+      isReviewing.value = false;
     };
 
     const recordfn = () => {
-      console.log("Record CLicked");
+      isRecording.value = true;
+      isReviewing.value = false;
     };
 
     const reviewfn = () => {
-      console.log("Record CLicked");
+      isRecording.value = false;
+      isReviewing.value = true;
+    };
+
+    const submitfn = () => {
+      alert("You answers have been submitted!");
     };
 
     const handleFinalAnswerChange = (ev) => {
@@ -183,9 +211,13 @@ export default {
       caretForward,
       handleFinalAnswerChange,
       submitDisabled,
+      isRecording,
+      isReviewing,
       stopfn,
       recordfn,
       reviewfn,
+      textArea,
+      submitfn,
     };
   },
 };
@@ -236,7 +268,7 @@ ion-radio::part(mark) {
 }
 
 ion-radio.radio-checked::part(container) {
-  background: #5f98ff;
+  background: #2dd55b;
   border-color: transparent;
 }
 
@@ -266,8 +298,8 @@ ion-radio.radio-checked::part(mark) {
 }
 
 .submit-button:disabled {
-  background-color: #818181;
-  color: rgb(72, 72, 72);
+  background-color: #d9d9d9;
+  color: #898989;
 }
 
 .submit-button:focus {
@@ -288,5 +320,10 @@ ion-radio.radio-checked::part(mark) {
 
 .margin-right-ten {
   margin-right: 30px;
+}
+
+textarea {
+  padding: 10px;
+  width: 100%;
 }
 </style>
