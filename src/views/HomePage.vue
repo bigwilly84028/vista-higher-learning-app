@@ -6,7 +6,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="false">
+    <ion-content :fullscreen="false" role="main">
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">Blank</ion-title>
@@ -20,13 +20,26 @@
             <ion-col size="10">
               <ion-row>
                 <ion-col>
-                  <strong>Say the vocabulary words.</strong>
+                  <h2>Say the vocabulary words.</h2>
                 </ion-col>
               </ion-row>
-              <ion-row class="top-spacer-lg">
+              <ion-row
+                class="top-spacer-lg"
+                aria-labelledby="recording-controls"
+              >
                 <ion-col size="12" size-sm="4">
-                  <ion-button shape="round" color="warning" @click="stopfn">
-                    <ion-icon slot="icon-only" name="square"></ion-icon>
+                  <ion-button
+                    shape="round"
+                    color="warning"
+                    @click="stopfn"
+                    aria-label="Stop recording"
+                    aria-disabled="!isRecording && !isReviewing"
+                  >
+                    <ion-icon
+                      slot="icon-only"
+                      name="square"
+                      alt="Stop"
+                    ></ion-icon>
                   </ion-button>
                   <ion-row>
                     <ion-col>Stop</ion-col>
@@ -37,66 +50,82 @@
                     shape="round"
                     :color="isRecording ? 'success' : 'danger'"
                     @click="recordfn"
+                    :aria-pressed="isRecording"
+                    aria-label="Toggle recording"
                   >
-                    <ion-icon slot="icon-only" name="ellipse"></ion-icon>
+                    <ion-icon
+                      slot="icon-only"
+                      name="ellipse"
+                      alt="Record"
+                    ></ion-icon>
                   </ion-button>
                   <ion-row>
-                    <ion-col>{{
+                    <ion-col aria-live="polite">{{
                       isRecording ? "Recording..." : "Record"
                     }}</ion-col>
                   </ion-row>
                 </ion-col>
                 <ion-col size="12" size-sm="4">
-                  <ion-col>
-                    <ion-button
-                      shape="round"
-                      :color="isReviewing ? 'success' : 'primary'"
-                      @click="reviewfn"
-                    >
-                      <ion-icon
-                        size="large"
-                        slot="icon-only"
-                        name="caret-forward"
-                      ></ion-icon>
-                    </ion-button>
-                  </ion-col>
+                  <ion-button
+                    shape="round"
+                    :color="isReviewing ? 'success' : 'primary'"
+                    @click="reviewfn"
+                    :aria-pressed="isReviewing"
+                    aria-label="Toggle review recording"
+                  >
+                    <ion-icon
+                      slot="icon-only"
+                      name="caret-forward"
+                      alt="Review"
+                    ></ion-icon>
+                  </ion-button>
                   <ion-row>
-                    <ion-col>{{
+                    <ion-col aria-live="polite">{{
                       isReviewing ? "Reviewing..." : "Review your recording"
                     }}</ion-col>
                   </ion-row>
                 </ion-col>
               </ion-row>
               <ion-row class="top-spacer-lg">
-                <ion-col>
+                <ion-col class="text-left">
+                  <label for="text-area">
+                    Comments <span class="required-text">(Required)</span>
+                  </label>
                   <textarea
+                    id="text-area"
                     v-model="text"
                     rows="3"
                     cols="20"
                     placeholder="Please submit your answer here..."
                     ref="textArea"
-                  >
-                  </textarea>
+                    aria-required="true"
+                    class="margin-top-five"
+                  ></textarea>
                 </ion-col>
               </ion-row>
-              <ion-row class="top-spacer-md">
-                <ion-col>
-                  <p>Is this your final answer?</p>
+              <ion-row class="top-spacer-md ion-align-items-center">
+                <ion-col size="auto" class="text-right">
+                  <span
+                    id="final-answer-question"
+                    class="pad-right-ten text-bold"
+                    >Is this your final answer?
+                  </span>
                 </ion-col>
-              </ion-row>
-              <ion-row class="top-spacer-md">
-                <ion-col>
+                <ion-col size="auto" class="text-left">
                   <ion-radio-group
-                    value="true"
+                    aria-labelledby="final-answer-question"
                     @ionChange="handleFinalAnswerChange($event)"
                   >
                     <ion-radio
                       class="margin-right-ten"
                       value="true"
-                      aria-label="Custom checkbox that is checked"
-                      >No</ion-radio
+                      aria-label="No, not my final answer"
                     >
-                    <ion-radio value="false" aria-label="Custom checkbox"
+                      No
+                    </ion-radio>
+                    <ion-radio
+                      value="false"
+                      aria-label="Yes, this is my final answer"
                       >Yes</ion-radio
                     >
                   </ion-radio-group>
@@ -108,6 +137,8 @@
                     class="submit-button"
                     :disabled="submitDisabled"
                     @click="submitfn"
+                    aria-disabled="submitDisabled"
+                    aria-label="Submit final answer"
                   >
                     Submit
                   </button>
@@ -239,18 +270,11 @@ export default {
   line-height: 26px;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
 #container a {
   text-decoration: none;
 }
+
+/* Radio button Styles */
 
 ion-radio::part(container) {
   width: 30px;
@@ -283,6 +307,13 @@ ion-radio.radio-checked::part(mark) {
   transform: rotate(45deg);
 }
 
+/* Textarea Style */
+
+textarea {
+  padding: 10px;
+  width: 100%;
+}
+
 /* Button Style */
 
 .submit-button {
@@ -310,6 +341,8 @@ ion-radio.radio-checked::part(mark) {
   background-color: #3872dd;
 }
 
+/* Reusable Utility Styles */
+
 .top-spacer-md {
   padding-top: 35px;
 }
@@ -322,8 +355,29 @@ ion-radio.radio-checked::part(mark) {
   margin-right: 30px;
 }
 
-textarea {
-  padding: 10px;
-  width: 100%;
+.margin-top-five {
+  margin-top: 5px;
+}
+
+.pad-right-ten {
+  padding-right: 10px;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.text-white {
+  color: #fff;
+}
+.text-right {
+  text-align: right;
+}
+.text-left {
+  text-align: left;
 }
 </style>
